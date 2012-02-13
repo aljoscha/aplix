@@ -1,0 +1,9 @@
+Requires Boost C++ libraries the Boost Build buildsystem for building.
+
+Compile with:
+bjam release
+
+Run:
+bin/*/release/aplix <filename>
+
+* is the name of the compiler, something like gcc-...
