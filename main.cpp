@@ -1,21 +1,29 @@
 #include <iostream>
-#include <boost/xpressive/xpressive.hpp>
 
-using namespace boost::xpressive;
+#include "parser.hpp"
+#include "network.hpp"
+#include "tree.hpp"
+#include "simplex.hpp"
 
 int main()
 {
-    std::string hello( "hello world!" );
+    Network *network = parse_nwk("example-networks/hu.nwk");
 
-    sregex rex = sregex::compile( "(\\w+) (\\w+)!" );
-    smatch what;
+    NWSimplex *simplex = new NWSimplex(network, 500, 11);
 
-    if( regex_match( hello, what, rex ) )
+    int solution_state = simplex->compute_solution();
+
+    if (solution_state == SOLUTION_UNBOUNDED)
     {
-        std::cout << what[0] << '\n'; // whole match
-        std::cout << what[1] << '\n'; // first capture
-        std::cout << what[2] << '\n'; // second capture
+        std::cout << "unbounded" << std::endl;
     }
-
+    else if (solution_state == SOLUTION_INFEASIBLE)
+    {
+        std::cout << "infeasible" << std::endl;
+    }
+    else
+    {
+        std::cout << "value: " << simplex->solution_value() << std::endl;
+    }
     return 0;
 }

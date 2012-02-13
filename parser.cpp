@@ -6,6 +6,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 
+#include "parser.hpp"
 #include "network.hpp"
 
 
@@ -15,9 +16,9 @@ static std::string NODE_PATTERN = "\\d+\\s*,?\\s*\\(\\s*\\-?\\s*\\d+\\s*,\\s*\\-
 using namespace std;
 using namespace boost::xpressive;
 
-void parse_nwk(std::string filename)
+Network* parse_nwk(std::string filename)
 {
-    Network *network;
+    Network *network = NULL;
     sregex rex = sregex::compile(NODE_PATTERN.c_str());
     string line;
     ifstream file(filename.c_str());
@@ -49,7 +50,7 @@ void parse_nwk(std::string filename)
                 {
                     std::cout << "Illegal node description in line: "
                         << currline << std::endl;
-                    return;
+                    return NULL;
                 }
 
                 std::vector<std::string> node_parts;
@@ -130,12 +131,6 @@ void parse_nwk(std::string filename)
     else
     {
         cout << "Unable to open file " << filename;
-    } 
-
-}
-
-int main () {
-
-    parse_nwk("example-networks/hu.nwk");
-    return 0;
+    }
+    return network;
 }

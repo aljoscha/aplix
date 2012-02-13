@@ -1,1 +1,1 @@
-exe hello : parser.cpp ;
+exe aplix : simplex.cpp parser.cpp tree.cpp main.cpp network.cpp ;

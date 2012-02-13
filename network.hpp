@@ -1,8 +1,15 @@
 #ifndef NETWORK_HPP
 #define NETWORK_HPP
 
+#include <iostream>
+
 #include <list>
 #include <climits>
+
+#define ARC_STATE_L -1
+#define ARC_STATE_T 0
+#define ARC_STATE_U 1
+
 
 class Arc
 {
@@ -11,6 +18,7 @@ public:
     long long flow, capacity, cost;
     long compare_value;
     bool artificial;
+    char state;
 
     inline Arc(int v, int w, bool artificial, long capacity, long cost, long flow)
     {
@@ -20,6 +28,7 @@ public:
         this->capacity = capacity;
         this->cost = cost;
         this->flow = flow;
+        state = ARC_STATE_L;
     }
 
     inline int get_neighbor(int node)
@@ -38,30 +47,7 @@ public:
 
 };
 
-bool operator==(const Arc &lhs, const Arc &rhs)
-{
-    if (lhs.v != rhs.v) {
-        return false;
-    }
-
-    if (lhs.w != rhs.w) {
-        return false;
-    }
-
-    if (lhs.cost != rhs.cost) {
-        return false;
-    }
-
-    if (lhs.capacity != rhs.capacity) {
-        return false;
-    }
-
-    if (lhs.artificial != rhs.artificial) {
-        return false;
-    }
-
-    return true;
-}
+bool operator==(const Arc &lhs, const Arc &rhs);
 
 class Node {
 public:
@@ -98,13 +84,11 @@ public:
     inline void calc_max_cost()
     {
         this->max_cost = 0;
-        std::cout << "ARCS.size(): " << arcs.size() << std::endl;
         for (std::list<Arc*>::iterator it = arcs.begin(); it != arcs.end(); ++it)
         {
             this->max_cost += (*it)->cost;
         }
 
-        std::cout << "Max Cost: " << this->max_cost << std::endl;
     }
 
     inline void add_node(int node, long long demand)
