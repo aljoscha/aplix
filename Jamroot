@@ -1,1 +1,1 @@
-exe aplix : simplex.cpp parser.cpp tree.cpp main.cpp network.cpp ;
+exe aplix : simplex.cpp parser.cpp tree.cpp main.cpp network.cpp : <optimization>speed ;

@@ -67,7 +67,7 @@ public:
     Arc* get_best_arc();
     long long solution_value();
 
-    std::list<Arc*>* get_sorted_solution_arcs();
+    std::list<Arc*>* sorted_solution_arcs();
 
 };
 

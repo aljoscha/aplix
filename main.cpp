@@ -5,9 +5,10 @@
 #include "tree.hpp"
 #include "simplex.hpp"
 
-int main()
+int main(int arc, char **argv)
 {
-    Network *network = parse_nwk("example-networks/hu.nwk");
+    std::string filename(argv[1]);
+    Network *network = parse_nwk(filename);
 
     NWSimplex *simplex = new NWSimplex(network, 500, 11);
 
@@ -24,6 +25,16 @@ int main()
     else
     {
         std::cout << "value: " << simplex->solution_value() << std::endl;
+
+        std::list<Arc*> *arcs = simplex->sorted_solution_arcs();
+        
+        for (std::list<Arc*>::iterator it = arcs->begin();
+                it != arcs->end(); ++it)
+        {
+            Arc *arc = (*it);
+            std::cout << arc->v << " " << arc->w << " " << arc->flow << std::endl;
+        }
+
     }
     return 0;
 }

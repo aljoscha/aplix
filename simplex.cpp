@@ -275,7 +275,32 @@ long long NWSimplex::solution_value()
     return tree->solution_value();
 }
 
-std::list<Arc*>* NWSimplex::get_sorted_solution_arcs()
+bool arc_compare (Arc* i, Arc* j)
 {
-    return NULL;
+    if (i->v == j->w)
+    {
+        return i->w <= j->w;
+    }
+    else
+    {
+        return i->v <= j->v;
+    }
+}
+
+std::list<Arc*>* NWSimplex::sorted_solution_arcs()
+{
+    std::list<Arc*> *result = new std::list<Arc*>();
+    for (int i = 0; i < network->num_nodes; ++i)
+    {
+        for (std::list<Arc*>::iterator it = network->nodes[i]->outgoing.begin();
+                it != network->nodes[i]->outgoing.end(); ++it)
+        {
+            Arc *arc = (*it);
+            if (arc->flow > 0)
+            {
+               result->push_back(arc);
+            } 
+        }
+    }
+    return result;
 }
