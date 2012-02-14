@@ -233,17 +233,13 @@ void NWSimplex::recalc_redcosts()
         if (arc->flow == 0) {
             // this arc comes from L
             if (reducedCost >= 0) {
-                candidate_list.remove(*it);
-                it = candidate_list.begin();
-                continue;
+                arc->compare_value = 0;
             } else {
-                arc->compare_value = reducedCost;
+                arc->compare_value = -reducedCost;
             }
         } else {
             if (reducedCost <= 0) {
-                candidate_list.remove(*it);
-                it = candidate_list.begin();
-                continue;
+                arc->compare_value = 0;
             } else {
                 arc->compare_value = reducedCost;
             }
