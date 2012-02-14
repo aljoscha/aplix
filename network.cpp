@@ -1,7 +1,6 @@
 #include "network.hpp"
 
-bool operator==(const Arc &lhs, const Arc &rhs)
-{
+bool operator==(const Arc &lhs, const Arc &rhs) {
     if (lhs.v != rhs.v) {
         return false;
     }

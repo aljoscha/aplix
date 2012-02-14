@@ -16,15 +16,13 @@ static std::string NODE_PATTERN = "\\d+\\s*,?\\s*\\(\\s*\\-?\\s*\\d+\\s*,\\s*\\-
 using namespace std;
 using namespace boost::xpressive;
 
-Network* parse_nwk(std::string filename)
-{
+Network* parse_nwk(std::string filename) {
     Network *network = NULL;
-    sregex rex = sregex::compile(NODE_PATTERN.c_str());
+    //sregex rex = sregex::compile(NODE_PATTERN.c_str());
     string line;
     ifstream file(filename.c_str());
 
-    if (file.is_open())
-    {
+    if (file.is_open()) {
         getline(file, line);
         int num_nodes = boost::lexical_cast<int>(line);
         //std::cout << "Num nodes: " << num_nodes << std::endl;
@@ -33,11 +31,9 @@ Network* parse_nwk(std::string filename)
         network = new Network(num_nodes);
 
         int currline = 2;
-        while ( file.good() )
-        {
+        while (file.good()) {
             getline (file,line);
-            if (line.size() > 0)
-            {
+            if (line.size() > 0) {
                 std::vector<std::string> line_splits;
                 boost::split(line_splits, line, boost::is_any_of(":"));
 
@@ -46,12 +42,14 @@ Network* parse_nwk(std::string filename)
 				// parse node data
                 std::string node_data = line_splits[0];
 
+                /*
                 if( !regex_search( node_data, match, rex ) )
                 {
                     std::cout << "Illegal node description in line: "
                         << currline << std::endl;
                     return NULL;
                 }
+                */
 
                 std::vector<std::string> node_parts;
                 boost::split(node_parts, node_data, boost::is_any_of(","));
@@ -65,8 +63,7 @@ Network* parse_nwk(std::string filename)
                 string num_string = num_parts[0];
                 node_num = boost::lexical_cast<int>(num_string);
 
-                if (node_parts.size() > 2)
-                {
+                if (node_parts.size() > 2) {
                     string demand_string = node_parts[2];
                     boost::algorithm::trim(demand_string);
                     demand = boost::lexical_cast<int>(demand_string);
@@ -127,9 +124,7 @@ Network* parse_nwk(std::string filename)
         }
         file.close();
         network->calc_max_cost();
-    }
-    else
-    {
+    } else {
         cout << "Unable to open file " << filename;
     }
     return network;

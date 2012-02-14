@@ -7,8 +7,7 @@
 #include "tree.hpp"
 #include "simplex.hpp"
 
-int main(int arc, char **argv)
-{
+int main(int arc, char **argv) {
     std::string filename(argv[1]);
     Network *network = parse_nwk(filename);
 
@@ -22,16 +21,11 @@ int main(int arc, char **argv)
     boost::posix_time::time_duration msdiff = mst2 - mst1;
     std::cout << "Runtime: " << msdiff.total_milliseconds() << std::endl;
 
-    if (solution_state == SOLUTION_UNBOUNDED)
-    {
+    if (solution_state == SOLUTION_UNBOUNDED) {
         std::cout << "unbounded" << std::endl;
-    }
-    else if (solution_state == SOLUTION_INFEASIBLE)
-    {
+    } else if (solution_state == SOLUTION_INFEASIBLE) {
         std::cout << "infeasible" << std::endl;
-    }
-    else
-    {
+    } else {
         std::cout << "value: " << simplex->solution_value() << std::endl;
 
         /*
@@ -44,7 +38,7 @@ int main(int arc, char **argv)
             std::cout << arc->v << " " << arc->w << " " << arc->flow << std::endl;
         }
         */
-
     }
+
     return 0;
 }

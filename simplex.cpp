@@ -4,27 +4,21 @@
 #include <list>
 #include <vector>
 
-int NWSimplex::compute_solution()
-{
-    while (!perform_major_iteration()) {
-    }
+int NWSimplex::compute_solution() {
+    while (!perform_major_iteration()) continue;
 
     if (solution_state == SOLUTION_OPTIMAL) {
         bool has_artificial = false;
-        for (int i = 0; i < network->num_nodes; ++i)
-        {
+        for (int i = 0; i < network->num_nodes; ++i) {
             for (std::list<Arc*>::iterator it = network->nodes[i]->outgoing.begin();
-                    it != network->nodes[i]->outgoing.end(); ++it)
-            {
-                if ((*it)->artificial && (*it)->flow > 0)
-                {
+                    it != network->nodes[i]->outgoing.end(); ++it) {
+                if ((*it)->artificial && (*it)->flow > 0) {
                     has_artificial = true;
                 }
             }
         }
 
-        if (has_artificial)
-        {
+        if (has_artificial) {
             solution_state = SOLUTION_INFEASIBLE;
         }
     }
@@ -32,12 +26,10 @@ int NWSimplex::compute_solution()
     return solution_state;
 }
 
-bool NWSimplex::perform_major_iteration()
-{
+bool NWSimplex::perform_major_iteration() {
     fill_candidate_list();
 
-    if (candidate_list.empty())
-    {
+    if (candidate_list.empty()) {
         // no entering candidates -> already have optimal solution
         // (eventually infeasible)
         solution_state = SOLUTION_OPTIMAL;
@@ -47,8 +39,7 @@ bool NWSimplex::perform_major_iteration()
     Arc *best = get_best_arc();
     unsigned int removed_arcs = 0;
 
-    while (best != NULL && removed_arcs < max_min_its)
-    {
+    while (best != NULL && removed_arcs < max_min_its) {
         // arc is from L
         Cycle *cycle = compute_cycle(best);
 
@@ -76,27 +67,22 @@ bool NWSimplex::perform_major_iteration()
     return false;
 }
 
-void NWSimplex::fill_candidate_list()
-{
+void NWSimplex::fill_candidate_list() {
     candidate_list.clear();
 
     int start_node = current_startnode;
-    while (candidate_list.size() < max_list_size)
-    {
+    while (candidate_list.size() < max_list_size) {
         Node *node = network->nodes[current_startnode];
 
         for (std::list<Arc*>::iterator it = node->outgoing.begin();
-                it != node->outgoing.end(); ++it)
-        {
+                it != node->outgoing.end(); ++it) {
             Arc *arc = (*it);
             // ignore when it is in T
-            if (arc->state == ARC_STATE_T)
-            {
+            if (arc->state == ARC_STATE_T) {
                 continue;
             }
 
-            if (arc->artificial)
-            {
+            if (arc->artificial) {
                 continue;
             }
 
@@ -114,19 +100,17 @@ void NWSimplex::fill_candidate_list()
 
         ++current_startnode;
 
-        if (current_startnode >= network->num_nodes)
-        {
+        if (current_startnode >= network->num_nodes) {
             current_startnode = 0;
         }
-        if (current_startnode == start_node)
-        {
+
+        if (current_startnode == start_node) {
             break;
         }
     }
 }
 
-Cycle* NWSimplex::compute_cycle(Arc* entering)
-{
+Cycle* NWSimplex::compute_cycle(Arc* entering) {
     int predBackwards = -1;
     int predForwards = -1;
     Arc *blocking = NULL;
@@ -225,8 +209,7 @@ Cycle* NWSimplex::compute_cycle(Arc* entering)
     return new Cycle(theta, blocking, predForwards, F, B);
 }
 
-void NWSimplex::recalc_redcosts()
-{
+void NWSimplex::recalc_redcosts() {
     std::vector<Arc*>::iterator it = candidate_list.begin();
     while (it != candidate_list.end()) {
         Arc *arc = (*it);
@@ -293,27 +276,20 @@ long long NWSimplex::solution_value()
 
 bool arc_compare (Arc* i, Arc* j)
 {
-    if (i->v == j->w)
-    {
+    if (i->v == j->w) {
         return i->w <= j->w;
-    }
-    else
-    {
+    } else {
         return i->v <= j->v;
     }
 }
 
-std::list<Arc*>* NWSimplex::sorted_solution_arcs()
-{
+std::list<Arc*>* NWSimplex::sorted_solution_arcs() {
     std::list<Arc*> *result = new std::list<Arc*>();
-    for (int i = 0; i < network->num_nodes; ++i)
-    {
+    for (int i = 0; i < network->num_nodes; ++i) {
         for (std::list<Arc*>::iterator it = network->nodes[i]->outgoing.begin();
-                it != network->nodes[i]->outgoing.end(); ++it)
-        {
+                it != network->nodes[i]->outgoing.end(); ++it) {
             Arc *arc = (*it);
-            if (arc->flow > 0)
-            {
+            if (arc->flow > 0) {
                result->push_back(arc);
             } 
         }

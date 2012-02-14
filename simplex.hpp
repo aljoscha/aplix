@@ -11,9 +11,8 @@
 #define SOLUTION_OPTIMAL 2
 #define SOLUTION_UNSOLVED 3
 
-class Cycle
-{
-public:
+class Cycle {
+  public:
     long long theta;
 	Arc* blocking;
 	int common_predecessor;
@@ -22,19 +21,12 @@ public:
 
     inline Cycle(long long theta, Arc* blocking, int common_predecessor,
             std::list<Arc*> F,
-            std::list<Arc*> B)
-    {
-        this->theta = theta;
-        this->blocking = blocking;
-        this->common_predecessor = common_predecessor;
-        this->F = F;
-        this->B = B;
-    }
+            std::list<Arc*> B) : theta(theta), blocking(blocking),
+        common_predecessor(common_predecessor), F(F), B(B) {}
 };
 
-class NWSimplex
-{
-private:
+class NWSimplex {
+  private:
     Network *network;
     TreeSolution *tree;
 
@@ -47,9 +39,14 @@ private:
 
     std::vector<Arc*> candidate_list;
 
-public:
-    inline NWSimplex(Network *network, int max_list_size, int max_min_its)
-    {
+    bool perform_major_iteration();
+    void fill_candidate_list();
+    Cycle* compute_cycle(Arc* entering);
+    void recalc_redcosts();
+    Arc* get_best_arc();
+
+  public:
+    inline NWSimplex(Network *network, int max_list_size, int max_min_its) {
         this->network = network;
         this->max_list_size = max_list_size;
         this->max_min_its = max_min_its;
@@ -62,15 +59,8 @@ public:
     }
 
     int compute_solution();
-    bool perform_major_iteration();
-    void fill_candidate_list();
-    Cycle* compute_cycle(Arc* entering);
-    void recalc_redcosts();
-    Arc* get_best_arc();
     long long solution_value();
-
     std::list<Arc*>* sorted_solution_arcs();
-
 };
 
 #endif

@@ -2,26 +2,21 @@
 
 #include <stack>
 
-void TreeSolution::determine_initial_tree()
-{
+void TreeSolution::determine_initial_tree() {
     long long demand_sum = 0;
-    for (int i = 0; i < network->num_nodes; ++i)
-    {
+    for (int i = 0; i < network->num_nodes; ++i) {
         demand_sum += network->nodes[i]->demand;
     }
 
-    if (demand_sum != 0)
-    {
+    if (demand_sum != 0) {
         throw "Network is infeasible because demands do not sum up to zero.";
     }
 
-    for (int i = 1; i < network->num_nodes; ++i)
-    {
+    for (int i = 1; i < network->num_nodes; ++i) {
         Node *node = network->nodes[i];
 
         Arc *arc = NULL;
-        if (node->demand < 0)
-        {
+        if (node->demand < 0) {
             // this means that node has DEMAND!! eg we want to make an arc
             // INTO this node
             arc = network->add_artificial_arc(0, node->id);
@@ -39,8 +34,7 @@ void TreeSolution::determine_initial_tree()
     }
 }
 
-void TreeSolution::calc_initial_tree_structure()
-{
+void TreeSolution::calc_initial_tree_structure() {
     std::list<Arc*> unused(T);
 
     std::stack<int> stack;
@@ -49,32 +43,25 @@ void TreeSolution::calc_initial_tree_structure()
 
     stack.push(ROOT_NODE);
 
-
     pred[ROOT_NODE] = 0;
     depth[ROOT_NODE] = currdepth;
     bool notroot = false;
 
-    while (!stack.empty())
-    {
+    while (!stack.empty()) {
         int currnode = stack.top();
         stack.pop();
 
         if (notroot) {
             // determine if there is a backward or a forward arc.
-            if (treearcs[currnode][pred[currnode]] != NULL)
-            {
+            if (treearcs[currnode][pred[currnode]] != NULL) {
                 // forward arc in the tree exists
                 potential[currnode] = potential[pred[currnode]]
                         - treearcs[currnode][pred[currnode]]->cost;
-            }
-            else if (treearcs[pred[currnode]][currnode] != NULL)
-            {
+            } else if (treearcs[pred[currnode]][currnode] != NULL) {
                 // backward arc in the tree exists
                 potential[currnode] = potential[pred[currnode]]
                         + treearcs[pred[currnode]][currnode]->cost;
-            }
-            else
-            {
+            } else {
                 throw "Update potential cumputation failed.";
             }
         }
@@ -85,8 +72,7 @@ void TreeSolution::calc_initial_tree_structure()
         int currthread = -1;
 
         std::list<Arc*>::iterator it = unused.begin();
-        while (it != unused.end())
-        {
+        while (it != unused.end()) {
             Arc *arc = *it;
             if ((arc->v == currnode || arc->w == currnode)) {
                 unused.remove(*it);
@@ -101,17 +87,14 @@ void TreeSolution::calc_initial_tree_structure()
             ++it;
         }
 
-        if (currthread != -1)
-        {
+        if (currthread != -1) {
             // added child, so last added child is thread node
             thread[currnode] = currthread;
         }
-        else if (stack.empty())
-        {
+        else if (stack.empty()) {
             // stack is empty, we are right now looking at the last node
             thread[currnode] = ROOT_NODE;
-        } else
-        {
+        } else {
             // we currently see a leaf, so we have to go back to the last
             // upper subtree
             thread[currnode] = stack.top();
@@ -125,17 +108,14 @@ void TreeSolution::update(std::list<Arc*> F, std::list<Arc*> B,
                 long long theta,
                 Arc *entering,
                 Arc* leaving,
-                int common_predecessor)
-{
+                int common_predecessor) {
 
-    if (theta != 0)
-    {
-        for (std::list<Arc*>::iterator it = F.begin(); it != F.end(); ++it)
-        {
+    if (theta != 0) {
+        for (std::list<Arc*>::iterator it = F.begin(); it != F.end(); ++it) {
             (*it)->flow += theta;
         }
-        for (std::list<Arc*>::iterator it = B.begin(); it != B.end(); ++it)
-        {
+
+        for (std::list<Arc*>::iterator it = B.begin(); it != B.end(); ++it) {
             (*it)->flow -= theta;
         }
     }
@@ -144,15 +124,11 @@ void TreeSolution::update(std::list<Arc*> F, std::list<Arc*> B,
         treearcs[leaving->v][leaving->w] = NULL;
     }
 
-    if (leaving->flow == 0)
-    {
+    if (leaving->flow == 0) {
         // must now be in L
-        if (!leaving->artificial) 
-        {
+        if (!leaving->artificial) {
             leaving->state = ARC_STATE_L;
-        }
-        else
-        {
+        } else {
             network->nodes[leaving->v]->outgoing.remove(leaving);
         }
     } else {
@@ -164,11 +140,9 @@ void TreeSolution::update(std::list<Arc*> F, std::list<Arc*> B,
     // already do that
     entering->state = ARC_STATE_T;
 
-    if (entering != leaving)
-    {
+    if (entering != leaving) {
         treearcs[entering->v][entering->w] = entering;
     }
-
 
     this->update_tree(entering, leaving, common_predecessor);
 }
@@ -181,18 +155,13 @@ void TreeSolution::update_tree(Arc* entering, Arc* leaving, int join)
 
     int jOut, iOut, jNew = -1, iNew = -1;
     // first determine iOut and jOut
-    if (pred[leaving->v] == leaving->w)
-    {
+    if (pred[leaving->v] == leaving->w) {
         jOut = leaving->w;
         iOut = leaving->v;
-    }
-    else if (pred[leaving->w] == leaving->v)
-    {
+    } else if (pred[leaving->w] == leaving->v) {
         jOut = leaving->v;
         iOut = leaving->w;
-    }
-    else
-    {
+    } else {
         throw "Serious problem.";
     }
     // check whether V or W is in subtree of iOut
@@ -202,10 +171,8 @@ void TreeSolution::update_tree(Arc* entering, Arc* leaving, int join)
     // entering.W to join. This tells us which side of the entering arc is
     // the root of the subtree now hanging at the entering arc.
     i = entering->w;
-    while (depth[i] > depth[join])
-    {
-        if (i == leaving->v || i == leaving->w)
-        {
+    while (depth[i] > depth[join]) {
+        if (i == leaving->v || i == leaving->w) {
             iNew = entering->w;
             jNew = entering->v;
             break;
@@ -213,10 +180,8 @@ void TreeSolution::update_tree(Arc* entering, Arc* leaving, int join)
         i = pred[i];
     }
     i = entering->v;
-    while (depth[i] > depth[join])
-    {
-        if (i == leaving->v || i == leaving->w)
-        {
+    while (depth[i] > depth[join]) {
+        if (i == leaving->v || i == leaving->w) {
             iNew = entering->v;
             jNew = entering->w;
             break;
@@ -224,19 +189,16 @@ void TreeSolution::update_tree(Arc* entering, Arc* leaving, int join)
         i = pred[i];
     }
 
-    if (jNew == -1)
-    {
+    if (jNew == -1) {
         throw "Serious problem.";
     }
 
     update_thread_parent(jOut, iOut, jNew, iNew, join);
-
     update_depth_pot(jOut, iOut, jNew, iNew);
 }
 
 void TreeSolution::update_thread_parent(int jOut, int iOut, int jNew, int iNew,
-        int join)
-{
+        int join) {
     bool parent_first = false;
     int i;
     int first = -1;
@@ -245,16 +207,13 @@ void TreeSolution::update_thread_parent(int jOut, int iOut, int jNew, int iNew,
 
     int stem, newStem, predStem;
 
-    if (join == jOut)
-    {
+    if (join == jOut) {
         // determine whether jNew or iNew appear first on the thread
         i = pred[join];
 
         // have to do this because ROOT_NODE might be the "join"
-        if (i == -1)
-        {
-            for (int index = 0; index < network->num_nodes; ++index)
-            {
+        if (i == -1) {
+            for (int index = 0; index < network->num_nodes; ++index) {
                 if (thread[index] == 0) {
                     i = index;
                 }
@@ -262,18 +221,15 @@ void TreeSolution::update_thread_parent(int jOut, int iOut, int jNew, int iNew,
 
         }
 
-        while (thread[i] != iNew && thread[i] != jNew)
-        {
+        while (thread[i] != iNew && thread[i] != jNew) {
             i = thread[i];
         }
 
-        if (thread[i] == jNew)
-        {
+        if (thread[i] == jNew) {
             parent_first = true;
         }
 
-        while (thread[i] != iOut)
-        {
+        while (thread[i] != iOut) {
             i = thread[i];
         }
         first = i;
@@ -283,27 +239,21 @@ void TreeSolution::update_thread_parent(int jOut, int iOut, int jNew, int iNew,
     i = iNew;
 
     // calculate the last right successor for the first iteration
-    while (depth[thread[i]] > depth[iNew])
-    {
+    while (depth[thread[i]] > depth[iNew]) {
         i = thread[i];
     }
     right = thread[i];
     // i is the last right successor if i (iNew) now
 
-    if (thread[jNew] == iOut)
-    {
+    if (thread[jNew] == iOut) {
         last = i;
-        while (depth[last] > depth[iOut])
-        {
+        while (depth[last] > depth[iOut]) {
             last = thread[last];
         }
-        if (last == iOut)
-        {
+        if (last == iOut) {
             last = thread[last];
         }
-    }
-    else
-    {
+    } else {
         last = thread[jNew];
     }
 
@@ -311,14 +261,12 @@ void TreeSolution::update_thread_parent(int jOut, int iOut, int jNew, int iNew,
     stem = iNew;
     predStem = jNew;
 
-    while (stem != iOut)
-    {
+    while (stem != iOut) {
         // i is the last right successor at this point
         thread[i] = pred[stem];
 
         i = pred[stem];
-        while (thread[i] != stem)
-        {
+        while (thread[i] != stem) {
             i = thread[i];
         }
         // i is the last left successor of parent
@@ -331,8 +279,7 @@ void TreeSolution::update_thread_parent(int jOut, int iOut, int jNew, int iNew,
 
         // set i to the last right successor again
         i = stem;
-        while (depth[thread[i]] > depth[stem])
-        {
+        while (depth[thread[i]] > depth[stem]) {
             i = thread[i];
         }
         right = thread[i];
@@ -340,27 +287,19 @@ void TreeSolution::update_thread_parent(int jOut, int iOut, int jNew, int iNew,
 
     thread[i] = last;
 
-    if (join == jOut)
-    {
-        if (!parent_first)
-        {
+    if (join == jOut) {
+        if (!parent_first) {
             i = jOut;
-            while (thread[i] != iOut)
-            {
+            while (thread[i] != iOut) {
                 i = thread[i];
             }
             thread[i] = right;
-        }
-        else if (first != jNew)
-        {
+        } else if (first != jNew) {
             thread[first] = right;
         }
-    }
-    else
-    {
+    } else {
         i = jOut;
-        while (thread[i] != iOut)
-        {
+        while (thread[i] != iOut) {
             i = thread[i];
         }
         thread[i] = right;
@@ -380,12 +319,10 @@ void TreeSolution::update_depth_pot(int jOut, int iOut, int jNew, int iNew)
 
     i = thread[jNew];
 
-    while (true)
-    {
+    while (true) {
         j = pred[i];
 
-        if (j == -1)
-        {
+        if (j == -1) {
             // reached root
             break;
         }
@@ -393,75 +330,58 @@ void TreeSolution::update_depth_pot(int jOut, int iOut, int jNew, int iNew)
         depth[i] = depth[j] + 1;
 
         // determine if there is a backward or a forward arc.
-        if (treearcs[i][pred[i]] != NULL)
-        {
+        if (treearcs[i][pred[i]] != NULL) {
             // forward arc in the tree exists
             potential[i] = potential[pred[i]]
                     - treearcs[i][pred[i]]->cost;
-        }
-        else if (treearcs[pred[i]][i] != NULL)
-        {
+        } else if (treearcs[pred[i]][i] != NULL) {
             // backward arc in the tree exists
             potential[i] = potential[pred[i]]
                     + treearcs[pred[i]][i]->cost;
-        }
-        else
-        {
+        } else {
             throw "Update potential cumputation failed from {} to {}";
         }
 
-        if (depth[i] <= depth[jNew])
-        {
+        if (depth[i] <= depth[jNew]) {
             break;
-        }
-        else
-        {
+        } else {
             i = thread[i];
         }
     }
 }
 
-bool TreeSolution::has_arc(int from, int to)
-{
+bool TreeSolution::has_arc(int from, int to) {
     return treearcs[from][to] != NULL;
 }
 
-Arc* TreeSolution::get_arc(int from, int to)
-{
+Arc* TreeSolution::get_arc(int from, int to) {
     return treearcs[from][to];
 }
 
-long long TreeSolution::solution_value()
-{
+long long TreeSolution::solution_value() {
     long long sum = 0;
 
-    for (int i = 0; i < network->num_nodes; i++)
-    {
+    for (int i = 0; i < network->num_nodes; i++) {
         for (std::list<Arc*>::iterator it = network->nodes[i]->outgoing.begin();
-                it != network->nodes[i]->outgoing.end(); ++it)
-        {
+                it != network->nodes[i]->outgoing.end(); ++it) {
             sum += (*it)->flow * (*it)->cost;
         }
     }
     return sum;
 }
 
-void TreeSolution::print_structure()
-{
-    for (int i = 0; i < network->num_nodes; ++i)
-    {
+void TreeSolution::print_structure() {
+    for (int i = 0; i < network->num_nodes; ++i) {
         std::cout << pred[i] << " ";
     }
     std::cout << std::endl;
 
-    for (int i = 0; i < network->num_nodes; ++i)
-    {
+    for (int i = 0; i < network->num_nodes; ++i) {
         std::cout << depth[i] << " ";
     }
     std::cout << std::endl;
 
-    for (int i = 0; i < network->num_nodes; ++i)
-    {
+    for (int i = 0; i < network->num_nodes; ++i) {
         std::cout << thread[i] << " ";
     }
     std::cout << std::endl;
