@@ -62,7 +62,7 @@ public:
     int compute_solution();
     bool perform_major_iteration();
     void fill_candidate_list();
-    Cycle compute_cycle(Arc* entering);
+    Cycle* compute_cycle(Arc* entering);
     void recalc_redcosts();
     Arc* get_best_arc();
     long long solution_value();

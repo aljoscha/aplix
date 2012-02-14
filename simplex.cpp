@@ -48,9 +48,9 @@ bool NWSimplex::perform_major_iteration()
     while (best != NULL && removed_arcs < max_min_its)
     {
         // arc is from L
-        Cycle cycle = compute_cycle(best);
+        Cycle *cycle = compute_cycle(best);
 
-        if (cycle.blocking == NULL) {
+        if (cycle->blocking == NULL) {
             std::cout << "Instance is unbounded." << std::endl;
             solution_state = SOLUTION_UNBOUNDED;
             return true;
@@ -59,9 +59,11 @@ bool NWSimplex::perform_major_iteration()
         // tree.getL().remove(best);
         best->state = ARC_STATE_T;
 
-        tree->update(cycle.F, cycle.B, cycle.theta, best,
-                cycle.blocking, cycle.common_predecessor);
+        tree->update(cycle->F, cycle->B, cycle->theta, best,
+                cycle->blocking, cycle->common_predecessor);
         num_iterations++;
+
+        delete cycle;
 
         removed_arcs++;
         best = get_best_arc();
@@ -121,7 +123,7 @@ void NWSimplex::fill_candidate_list()
     }
 }
 
-Cycle NWSimplex::compute_cycle(Arc* entering)
+Cycle* NWSimplex::compute_cycle(Arc* entering)
 {
     int predBackwards = -1;
     int predForwards = -1;
@@ -218,7 +220,7 @@ Cycle NWSimplex::compute_cycle(Arc* entering)
         throw "Something is seriously wrong, theta=";
     }
 
-    return Cycle(theta, blocking, predForwards, F, B);
+    return new Cycle(theta, blocking, predForwards, F, B);
 }
 
 void NWSimplex::recalc_redcosts()
