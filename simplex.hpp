@@ -4,6 +4,8 @@
 #include "network.hpp"
 #include "tree.hpp"
 
+#include <vector>
+
 #define SOLUTION_INFEASIBLE 0
 #define SOLUTION_UNBOUNDED 1
 #define SOLUTION_OPTIMAL 2
@@ -43,7 +45,7 @@ private:
     unsigned int max_list_size;
     unsigned int max_min_its;
 
-    std::list<Arc*> candidate_list;
+    std::vector<Arc*> candidate_list;
 
 public:
     inline NWSimplex(Network *network, int max_list_size, int max_min_its)

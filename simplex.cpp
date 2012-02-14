@@ -1,6 +1,8 @@
 #include "simplex.hpp"
 
 #include <cstdlib>
+#include <list>
+#include <vector>
 
 int NWSimplex::compute_solution()
 {
@@ -225,7 +227,7 @@ Cycle* NWSimplex::compute_cycle(Arc* entering)
 
 void NWSimplex::recalc_redcosts()
 {
-    std::list<Arc*>::iterator it = candidate_list.begin();
+    std::vector<Arc*>::iterator it = candidate_list.begin();
     while (it != candidate_list.end()) {
         Arc *arc = (*it);
         long long reducedCost = tree->potential[arc->v]
@@ -250,14 +252,30 @@ void NWSimplex::recalc_redcosts()
 
 Arc* NWSimplex::get_best_arc()
 {
-    recalc_redcosts();
-
     Arc *best = NULL;
     long long bestRedCost = 0;
 
-    std::list<Arc*>::iterator it = candidate_list.begin();
+    std::vector<Arc*>::iterator it = candidate_list.begin();
     while (it != candidate_list.end()) {
         Arc *arc = (*it);
+
+        long long reducedCost = tree->potential[arc->v]
+                - tree->potential[arc->w] + arc->cost;
+
+        if (arc->flow == 0) {
+            // this arc comes from L
+            if (reducedCost >= 0) {
+                arc->compare_value = 0;
+            } else {
+                arc->compare_value = -reducedCost;
+            }
+        } else {
+            if (reducedCost <= 0) {
+                arc->compare_value = 0;
+            } else {
+                arc->compare_value = reducedCost;
+            }
+        }
 
         if (labs(arc->compare_value) > bestRedCost) {
             best = arc;
