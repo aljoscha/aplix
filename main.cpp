@@ -8,18 +8,25 @@
 #include "simplex.hpp"
 
 int main(int arc, char **argv) {
+    boost::posix_time::ptime mst1 = boost::posix_time::microsec_clock::local_time();
     std::string filename(argv[1]);
     Network *network = parse_nwk(filename);
-
-    NWSimplex *simplex = new NWSimplex(network, 500, 11);
-
-    boost::posix_time::ptime mst1 = boost::posix_time::microsec_clock::local_time();
-
-    int solution_state = simplex->compute_solution();
-
     boost::posix_time::ptime mst2 = boost::posix_time::microsec_clock::local_time();
     boost::posix_time::time_duration msdiff = mst2 - mst1;
-    std::cout << "Runtime: " << msdiff.total_milliseconds() << std::endl;
+    std::cout << "Parse time: " << msdiff.total_milliseconds() << std::endl;
+
+    mst1 = boost::posix_time::microsec_clock::local_time();
+    NWSimplex *simplex = new NWSimplex(network, 500, 11);
+    mst2 = boost::posix_time::microsec_clock::local_time();
+    msdiff = mst2 - mst1;
+    std::cout << "Constructor time: " << msdiff.total_milliseconds() << std::endl;
+
+    mst1 = boost::posix_time::microsec_clock::local_time();
+    int solution_state = simplex->compute_solution();
+    mst2 = boost::posix_time::microsec_clock::local_time();
+    msdiff = mst2 - mst1;
+    std::cout << "Simplex time: " << msdiff.total_milliseconds() << std::endl;
+
 
     if (solution_state == SOLUTION_UNBOUNDED) {
         std::cout << "unbounded" << std::endl;
