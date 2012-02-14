@@ -19,89 +19,48 @@ void TreeSolution::determine_initial_tree() {
         if (node->demand < 0) {
             // this means that node has DEMAND!! eg we want to make an arc
             // INTO this node
-            arc = network->add_artificial_arc(0, node->id);
+            arc = network->add_artificial_arc(ROOT_NODE, node->id);
             arc->flow = -node->demand;
         } else {
             // network.getDemand(node) >= 0
             // eg node has supply or flow conservation! want to make an arc
             // FROM this node
-            arc = network->add_artificial_arc(node->id, 0);
+            arc = network->add_artificial_arc(node->id, ROOT_NODE);
             arc->flow = node->demand;
         }
         arc->state = ARC_STATE_T;
-        T.push_back(arc);
         treearcs[arc->v][arc->w] = arc;
     }
 }
 
 void TreeSolution::calc_initial_tree_structure() {
-    std::list<Arc*> unused(T);
+    depth[ROOT_NODE] = 0;
+    pred[ROOT_NODE] = -1;
+    thread[ROOT_NODE] = 1;
+    potential[ROOT_NODE] = 0;		
 
-    std::stack<int> stack;
-
-    int currdepth = 0;
-
-    stack.push(ROOT_NODE);
-
-    pred[ROOT_NODE] = 0;
-    depth[ROOT_NODE] = currdepth;
-    bool notroot = false;
-
-    while (!stack.empty()) {
-        int currnode = stack.top();
-        stack.pop();
-
-        if (notroot) {
-            // determine if there is a backward or a forward arc.
-            if (treearcs[currnode][pred[currnode]] != NULL) {
-                // forward arc in the tree exists
-                potential[currnode] = potential[pred[currnode]]
-                        - treearcs[currnode][pred[currnode]]->cost;
-            } else if (treearcs[pred[currnode]][currnode] != NULL) {
-                // backward arc in the tree exists
-                potential[currnode] = potential[pred[currnode]]
-                        + treearcs[pred[currnode]][currnode]->cost;
-            } else {
-                throw "Update potential cumputation failed.";
-            }
-        }
-
-        notroot = true;
-        currdepth = depth[currnode] + 1;
-
-        int currthread = -1;
-
-        std::list<Arc*>::iterator it = unused.begin();
-        while (it != unused.end()) {
-            Arc *arc = *it;
-            if ((arc->v == currnode || arc->w == currnode)) {
-                unused.remove(*it);
-                int pushnode = arc->get_neighbor(currnode);
-                stack.push(pushnode);
-                depth[pushnode] = currdepth;
-                pred[pushnode] = currnode;
-                currthread = pushnode;
-                it = unused.begin();
-                continue;
-            }
-            ++it;
-        }
-
-        if (currthread != -1) {
-            // added child, so last added child is thread node
-            thread[currnode] = currthread;
-        }
-        else if (stack.empty()) {
-            // stack is empty, we are right now looking at the last node
-            thread[currnode] = ROOT_NODE;
-        } else {
-            // we currently see a leaf, so we have to go back to the last
-            // upper subtree
-            thread[currnode] = stack.top();
-        }
+    int num_treearcs = network->num_nodes;
+    // spanning tree has num_nodes -1 nodes
+    // set thread of last node to 0
+    pred[num_treearcs - 1] = 0;
+    thread[num_treearcs - 1] = 0;
+    depth[num_treearcs - 1] = 1;
+    if (treearcs[0][num_treearcs - 1] != NULL) {
+        potential[num_treearcs - 1] = network->max_cost;
+    } else {
+        potential[num_treearcs - 1] = -network->max_cost;
     }
 
-    pred[ROOT_NODE] = -1;
+    for (int i = 1; i < num_treearcs - 1; ++i) {
+        depth[i] = 1;
+        pred[i] = 0;
+        thread[i] = i + 1;
+        if (treearcs[0][i] != NULL) {
+            potential[i] = network->max_cost;
+        } else {
+            potential[i] = -network->max_cost;
+        }
+    }
 }
 
 void TreeSolution::update(std::list<Arc*> F, std::list<Arc*> B,

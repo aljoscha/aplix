@@ -13,8 +13,6 @@ class TreeSolution {
 
     Arc ***treearcs;
 
-    std::list<Arc*> T;
-
     void determine_initial_tree();
     void calc_initial_tree_structure();
 
