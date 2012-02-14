@@ -1,5 +1,7 @@
 #include <iostream>
 
+#include "boost/date_time/posix_time/posix_time.hpp"
+
 #include "parser.hpp"
 #include "network.hpp"
 #include "tree.hpp"
@@ -12,7 +14,13 @@ int main(int arc, char **argv)
 
     NWSimplex *simplex = new NWSimplex(network, 500, 11);
 
+    boost::posix_time::ptime mst1 = boost::posix_time::microsec_clock::local_time();
+
     int solution_state = simplex->compute_solution();
+
+    boost::posix_time::ptime mst2 = boost::posix_time::microsec_clock::local_time();
+    boost::posix_time::time_duration msdiff = mst2 - mst1;
+    std::cout << "Runtime: " << msdiff.total_milliseconds() << std::endl;
 
     if (solution_state == SOLUTION_UNBOUNDED)
     {
@@ -26,6 +34,7 @@ int main(int arc, char **argv)
     {
         std::cout << "value: " << simplex->solution_value() << std::endl;
 
+        /*
         std::list<Arc*> *arcs = simplex->sorted_solution_arcs();
         
         for (std::list<Arc*>::iterator it = arcs->begin();
@@ -34,6 +43,7 @@ int main(int arc, char **argv)
             Arc *arc = (*it);
             std::cout << arc->v << " " << arc->w << " " << arc->flow << std::endl;
         }
+        */
 
     }
     return 0;
