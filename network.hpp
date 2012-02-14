@@ -67,20 +67,10 @@ class Network {
 	int num_nodes;
 
 	Node **nodes;
-    std::list<Arc*> arcs;
-    std::list<Arc*> artificial_arcs;
 
     inline Network(int num_nodes) : num_nodes(num_nodes) {
         this->nodes = new Node*[num_nodes];
-    }
-
-    inline void calc_max_cost() {
         this->max_cost = 0;
-        for (std::list<Arc*>::iterator it = arcs.begin();
-             it != arcs.end(); ++it) {
-            this->max_cost += (*it)->cost;
-        }
-
     }
 
     inline void add_node(int node, long long demand) {
@@ -89,14 +79,13 @@ class Network {
 
     inline Arc* add_artificial_arc(int from, int to) {
 		Arc *arc = new Arc(from, to, true, LONG_MAX, this->max_cost, 0);
-		artificial_arcs.push_back(arc);
 		nodes[from]->add_outgoing(arc);
 		return arc;
 	}
 
     inline Arc* add_arc(int from, int to, long cost, long capacity) {
 		Arc *arc = new Arc(from, to, false, capacity, cost, 0);
-		arcs.push_back(arc);
+        max_cost += arc->cost;
 		nodes[from]->add_outgoing(arc);
 		return arc;
 	}

@@ -123,7 +123,6 @@ Network* parse_nwk(std::string filename) {
             ++currline;
         }
         file.close();
-        network->calc_max_cost();
     } else {
         cout << "Unable to open file " << filename;
     }
