@@ -54,6 +54,13 @@ class Node {
 	long demand;
     std::list<Arc*> outgoing;
 
+    Node* pred;
+    int depth;
+    Node* thread;
+    long potential;
+    Arc* basic_arc;
+    char basic_arc_dir;
+
     inline Node(int id, long demand) : id(id), demand(demand) {}
 
     inline void add_outgoing(Arc *arc) {

@@ -19,28 +19,17 @@ class TreeSolution {
     void calc_initial_tree_structure();
 
     void update_tree(Arc* entering, Arc* leaving, int join);
-    void update_thread_parent(int jOut, int iOut, int jNew, int iNew, int join);
-    void update_arc_dir(int jOut, int iOut, int jNew, int iNew, Arc *entering);
-    void update_depth_pot(int jOut, int iOut, int jNew, int iNew);
+    void update_thread_parent(Node* jOut, Node* iOut, Node* jNew, Node* iNew, int join);
+    void update_arc_dir(Node* jOut, Node* iOut, Node* jNew, Node* iNew, Arc *entering);
+    void update_depth_pot(Node* jOut, Node* iOut, Node* jNew, Node* iNew);
 
     void print_structure();
 
   public:
-    int *pred;
-    int *depth;
-    int *thread;
-    long *potential;
-    Arc **basic_arcs;
-    char *basic_arc_dirs;
+    Node **nodes;
 
     inline TreeSolution(Network *network) : network(network) {
-        pred = new int[network->num_nodes];
-        depth = new int[network->num_nodes];
-        thread = new int[network->num_nodes];
-        potential = new long[network->num_nodes];
-        basic_arcs = new Arc*[network->num_nodes];
-        basic_arc_dirs = new char[network->num_nodes];
-
+        nodes = network->nodes;
         determine_initial_tree();
         calc_initial_tree_structure();
     }

@@ -1,8 +1,10 @@
 #include "simplex.hpp"
+#include "network.hpp"
 
 #include <cstdlib>
 #include <list>
 #include <vector>
+#include <iostream>
 
 int NWSimplex::compute_solution() {
     while (!perform_major_iteration()) continue;
@@ -84,8 +86,8 @@ void NWSimplex::fill_candidate_list() {
                 continue;
             }
 
-            long reduced_cost = tree->potential[arc->v]
-                    - tree->potential[arc->w] + arc->cost;
+            long reduced_cost = tree->nodes[arc->v]->potential
+                    - tree->nodes[arc->w]->potential + arc->cost;
 
             if (reduced_cost < 0 && arc->flow == 0) {
                 arc->compare_value = -reduced_cost;
@@ -109,8 +111,8 @@ void NWSimplex::fill_candidate_list() {
 }
 
 void NWSimplex::compute_cycle(Arc* entering) {
-    int predBackwards = -1;
-    int predForwards = -1;
+    Node* predBackwards = NULL;
+    Node* predForwards = NULL;
     bool blockingIsFromBackward = false;
     cycle.theta = LONG_MAX;
     cycle.blocking = NULL;
@@ -120,8 +122,8 @@ void NWSimplex::compute_cycle(Arc* entering) {
 
     if (entering->state == ARC_STATE_L) {
         blockingIsFromBackward = true;
-        predBackwards = entering->v;
-        predForwards = entering->w;
+        predBackwards = tree->nodes[entering->v];
+        predForwards = tree->nodes[entering->w];
         if (entering->capacity != LONG_MAX) {
             cycle.blocking = entering;
             cycle.theta = entering->capacity - entering->flow;
@@ -129,8 +131,8 @@ void NWSimplex::compute_cycle(Arc* entering) {
         cycle.F.push_back(entering);
     } else {
         blockingIsFromBackward = true;
-        predBackwards = entering->w;
-        predForwards = entering->v;
+        predBackwards = tree->nodes[entering->w];
+        predForwards = tree->nodes[entering->v];
         cycle.blocking = entering;
         cycle.theta = entering->flow;
         cycle.B.push_back(entering);
@@ -138,10 +140,10 @@ void NWSimplex::compute_cycle(Arc* entering) {
 
     while (predBackwards != predForwards) {
 
-        if (tree->depth[predBackwards] > tree->depth[predForwards]) {
-            if (tree->basic_arc_dirs[predBackwards] == ARC_UP) {
+        if (predBackwards->depth > predForwards->depth) {
+            if (predBackwards->basic_arc_dir == ARC_UP) {
                 // forward arc from V to pred(V)
-                Arc *arc = tree->basic_arcs[predBackwards];
+                Arc *arc = predBackwards->basic_arc;
                 cycle.B.push_back(arc);
                 if (arc->flow < cycle.theta
                         || (arc->flow == cycle.theta && !blockingIsFromBackward)) {
@@ -151,7 +153,7 @@ void NWSimplex::compute_cycle(Arc* entering) {
                 }
             } else {
                 // backward arc from V to pred(V)
-                Arc *arc = tree->basic_arcs[predBackwards];
+                Arc *arc = predBackwards->basic_arc;
                 cycle.F.push_back(arc);
                 if (arc->capacity != LONG_MAX) {
                     long resCapacity = arc->capacity - arc->flow;
@@ -163,11 +165,11 @@ void NWSimplex::compute_cycle(Arc* entering) {
                     }
                 }
             }
-            predBackwards = tree->pred[predBackwards];
+            predBackwards = predBackwards->pred;
         } else {
-            if (tree->basic_arc_dirs[predForwards] == ARC_DOWN) {
+            if (predForwards->basic_arc_dir == ARC_DOWN) {
                 // backward arc from W to pred(W)
-                Arc *arc = tree->basic_arcs[predForwards];
+                Arc *arc = predForwards->basic_arc;
                 cycle.B.push_back(arc);
                 if (arc->flow < cycle.theta
                         || (arc->flow == cycle.theta && !blockingIsFromBackward)) {
@@ -177,7 +179,7 @@ void NWSimplex::compute_cycle(Arc* entering) {
                 }
             } else {
                 // forward arc from V to pred(V)
-                Arc *arc = tree->basic_arcs[predForwards];
+                Arc *arc = predForwards->basic_arc;
                 cycle.F.push_back(arc);
                 if (arc->capacity != LONG_MAX) {
                     long resCapacity = arc->capacity - arc->flow;
@@ -189,7 +191,7 @@ void NWSimplex::compute_cycle(Arc* entering) {
                     }
                 }
             }
-            predForwards = tree->pred[predForwards];
+            predForwards = predForwards->pred;
         }
     }
 
@@ -202,15 +204,15 @@ void NWSimplex::compute_cycle(Arc* entering) {
         throw "Something is seriously wrong, theta=";
     }
 
-    cycle.common_predecessor = predForwards;
+    cycle.common_predecessor = predForwards->id;
 }
 
 void NWSimplex::recalc_redcosts() {
     std::vector<Arc*>::iterator it = candidate_list.begin();
     while (it != candidate_list.end()) {
         Arc *arc = (*it);
-        long reducedCost = tree->potential[arc->v]
-                - tree->potential[arc->w] + arc->cost;
+        long reducedCost = tree->nodes[arc->v]->potential
+                - tree->nodes[arc->w]->potential + arc->cost;
         if (arc->flow == 0) {
             // this arc comes from L
             if (reducedCost >= 0) {
@@ -238,8 +240,8 @@ Arc* NWSimplex::get_best_arc()
     while (it != candidate_list.end()) {
         Arc *arc = (*it);
 
-        long reducedCost = tree->potential[arc->v]
-                - tree->potential[arc->w] + arc->cost;
+        long reducedCost = tree->nodes[arc->v]->potential
+                - tree->nodes[arc->w]->potential + arc->cost;
 
         if (arc->flow == 0) {
             // this arc comes from L
@@ -287,7 +289,7 @@ std::list<Arc*>* NWSimplex::sorted_solution_arcs() {
             Arc *arc = (*it);
             if (arc->flow > 0) {
                result->push_back(arc);
-            } 
+            }
         }
     }
     return result;

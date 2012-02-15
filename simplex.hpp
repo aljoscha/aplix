@@ -5,6 +5,7 @@
 #include "tree.hpp"
 
 #include <vector>
+#include <iostream>
 
 #define SOLUTION_INFEASIBLE 0
 #define SOLUTION_UNBOUNDED 1
