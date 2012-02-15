@@ -4,7 +4,7 @@ INCLUDEDIRS =
 LIBDIRS =
 LIBS = -lboost_program_options
 
-CXXSOURCES = main.cpp network.cpp parser.cpp simplex.cpp tree.cpp
+CXXSOURCES = main.cpp network.cpp simplex.cpp tree.cpp
 CXXOBJECTS = $(CXXSOURCES:.cpp=.o)
 CXXFLAGS = -ftemplate-depth-128 -O3 -finline-functions -Wno-inline -Wall -fPIC  -DNDEBUG
 CXX = g++

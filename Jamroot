@@ -1,4 +1,4 @@
 lib lib_program_options : : <name>boost_program_options ;
 
 
-exe aplix : simplex.cpp parser.cpp tree.cpp main.cpp network.cpp lib_program_options : <optimization>speed ;
+exe aplix : simplex.cpp tree.cpp main.cpp network.cpp lib_program_options : <optimization>speed ;

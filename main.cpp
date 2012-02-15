@@ -39,7 +39,7 @@ int main(int argc, char **argv) {
 
     boost::posix_time::ptime mst1 = boost::posix_time::microsec_clock::local_time();
     std::string filename = vm["input-file"].as<std::string>();
-    Network *network = parse_nwk(filename);
+    Network *network = parse_nwk<Network>(filename);
     boost::posix_time::ptime mst2 = boost::posix_time::microsec_clock::local_time();
     boost::posix_time::time_duration msdiff = mst2 - mst1;
     if (vm.count("verbose")) {
