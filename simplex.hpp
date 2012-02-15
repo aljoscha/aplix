@@ -30,7 +30,6 @@ class NWSimplex {
     Network *network;
     TreeSolution *tree;
 
-    int num_iterations;
     int solution_state;
 
     int current_startnode;
@@ -46,6 +45,8 @@ class NWSimplex {
     Arc* get_best_arc();
 
   public:
+    int num_iterations;
+
     inline NWSimplex(Network *network, int max_list_size, int max_min_its) {
         this->network = network;
         this->max_list_size = max_list_size;

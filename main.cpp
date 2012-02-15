@@ -60,6 +60,7 @@ int main(int argc, char **argv) {
     msdiff = mst2 - mst1;
     if (vm.count("verbose")) {
         std::cout << "Simplex time: " << msdiff.total_milliseconds() << std::endl;
+        std::cout << "Iterations: " << simplex->num_iterations << std::endl;
     }
 
 
@@ -70,17 +71,14 @@ int main(int argc, char **argv) {
     } else {
         std::cout << "value: " << simplex->solution_value() << std::endl;
 
-        
         if (vm.count("print-arcs")) {
             std::list<Arc*> *arcs = simplex->sorted_solution_arcs();
-            
             for (std::list<Arc*>::iterator it = arcs->begin();
                     it != arcs->end(); ++it) {
                 Arc *arc = (*it);
                 std::cout << arc->v << " " << arc->w << " " << arc->flow << std::endl;
             }
         }
-        
     }
 
     return 0;
