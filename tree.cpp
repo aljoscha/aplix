@@ -43,19 +43,9 @@ void TreeSolution::calc_initial_tree_structure() {
     thread[ROOT_NODE] = 1;
     potential[ROOT_NODE] = 0;		
 
-    int num_treearcs = network->num_nodes;
-    // spanning tree has num_nodes -1 nodes
-    // set thread of last node to 0
-    pred[num_treearcs - 1] = 0;
-    thread[num_treearcs - 1] = 0;
-    depth[num_treearcs - 1] = 1;
-    if (basic_arc_dirs[num_treearcs - 1] == ARC_DOWN) {
-        potential[num_treearcs - 1] = network->max_cost;
-    } else {
-        potential[num_treearcs - 1] = -network->max_cost;
-    }
+    int num_nodes = network->num_nodes;
 
-    for (int i = 1; i < num_treearcs - 1; ++i) {
+    for (int i = 1; i < num_nodes; ++i) {
         depth[i] = 1;
         pred[i] = 0;
         thread[i] = i + 1;
@@ -65,6 +55,9 @@ void TreeSolution::calc_initial_tree_structure() {
             potential[i] = -network->max_cost;
         }
     }
+
+    // last node points back to ROOT_NODE
+    thread[num_nodes - 1] = 0;
 }
 
 void TreeSolution::update(const std::vector<Arc*> &F,
