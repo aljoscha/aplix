@@ -14,12 +14,6 @@
 
 using namespace std;
 
-#define STATE_NODE 0
-#define STATE_NODE_P_OR_D 1
-#define STATE_NODE_P 2
-#define STATE_NODE_D_OR_END 3
-#define STATE_NODE_D 4
-
 // Reads a network instance from the given file and stores it in a new network
 // of type NetworkType. The network type must have a constructor that takes one
 // int value, the number or nodes, and it must have the two method:
@@ -77,7 +71,7 @@ NetworkType* parse_nwk(std::string filename) {
 
             //cout << "node: " << node_num << " " << demand << endl;
             network->add_node(node_num, demand);
-            
+
 
             while (line.peek() != ':') line.get();
             line.get();
@@ -85,7 +79,7 @@ NetworkType* parse_nwk(std::string filename) {
             //cout << "READING ARCS\n";
 
             // now the arcs ...
-            
+
             while (line.good()) {
                 // read away whitespace
                 while (line.peek() == ' ' || line.peek() == '\t') line.get();
@@ -109,8 +103,9 @@ NetworkType* parse_nwk(std::string filename) {
                     line >> capacity;
                 }
                 line.get();
-                
-                //cout << "ARC: " << target << " " << cost << " " << capacity << endl; 
+
+                //cout << "ARC: "
+                //    << target << " " << cost << " " << capacity << endl;
                 network->add_arc(node_num, target, cost, capacity);
                 ++num_arcs;
             }
