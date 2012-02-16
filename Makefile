@@ -2,7 +2,7 @@ PROGRAM = aplix
 
 INCLUDEDIRS =
 LIBDIRS =
-LIBS = -lboost_program_options
+LIBS =
 
 CXXSOURCES = main.cpp network.cpp simplex.cpp tree.cpp
 CXXOBJECTS = $(CXXSOURCES:.cpp=.o)
