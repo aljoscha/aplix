@@ -96,7 +96,7 @@ NetworkType* parse_nwk(std::string filename) {
                 int cost;
                 line >> cost;
 
-                int capacity = LONG_MAX;
+                long capacity = LONG_MAX;
                 if (line.peek() != ';') {
                     // read ", "
                     line.get();
