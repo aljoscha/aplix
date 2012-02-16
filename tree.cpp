@@ -63,18 +63,21 @@ void TreeSolution::calc_initial_tree_structure() {
     }
 }
 
-void TreeSolution::update(std::list<Arc*> F, std::list<Arc*> B,
+void TreeSolution::update(const std::vector<Arc*> &F,
+                const std::vector<Arc*> &B,
                 long long theta,
                 Arc *entering,
                 Arc* leaving,
                 int common_predecessor) {
 
     if (theta != 0) {
-        for (std::list<Arc*>::iterator it = F.begin(); it != F.end(); ++it) {
+        for (std::vector<Arc*>::const_iterator it = F.begin();
+                it != F.end(); ++it) {
             (*it)->flow += theta;
         }
 
-        for (std::list<Arc*>::iterator it = B.begin(); it != B.end(); ++it) {
+        for (std::vector<Arc*>::const_iterator it = B.begin();
+                it != B.end(); ++it) {
             (*it)->flow -= theta;
         }
     }

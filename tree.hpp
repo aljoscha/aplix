@@ -2,6 +2,7 @@
 #define TREE_HPP
 
 #include <list>
+#include <vector>
 
 #include "network.hpp"
 
@@ -50,7 +51,7 @@ class TreeSolution {
     bool has_arc(int from, int to);
     Arc* get_arc(int from, int to);
 
-    void update(std::list<Arc*> F, std::list<Arc*> B,
+    void update(const std::vector<Arc*> &F, const std::vector<Arc*> &B,
                 long long theta,
                 Arc *entering,
                 Arc* leaving,

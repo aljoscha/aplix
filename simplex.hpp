@@ -16,8 +16,8 @@ class Cycle {
     long long theta;
 	Arc* blocking;
 	int common_predecessor;
-    std::list<Arc*> F;
-    std::list<Arc*> B;
+    std::vector<Arc*> F;
+    std::vector<Arc*> B;
 };
 
 class NWSimplex {
