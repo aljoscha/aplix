@@ -139,10 +139,9 @@ void NWSimplex::compute_cycle(Arc* entering) {
     while (predBackwards != predForwards) {
 
         if (tree->depth[predBackwards] > tree->depth[predForwards]) {
-            int pred = tree->pred[predBackwards];
-            if (tree->has_arc(predBackwards, pred)) {
+            if (tree->basic_arc_dirs[predBackwards] == ARC_UP) {
                 // forward arc from V to pred(V)
-                Arc *arc = tree->get_arc(predBackwards, pred);
+                Arc *arc = tree->basic_arcs[predBackwards];
                 cycle.B.push_back(arc);
                 if (arc->flow < cycle.theta
                         || (arc->flow == cycle.theta && !blockingIsFromBackward)) {
@@ -152,7 +151,7 @@ void NWSimplex::compute_cycle(Arc* entering) {
                 }
             } else {
                 // backward arc from V to pred(V)
-                Arc *arc = tree->get_arc(pred, predBackwards);
+                Arc *arc = tree->basic_arcs[predBackwards];
                 cycle.F.push_back(arc);
                 if (arc->capacity != LONG_MAX) {
                     long long resCapacity = arc->capacity - arc->flow;
@@ -164,12 +163,11 @@ void NWSimplex::compute_cycle(Arc* entering) {
                     }
                 }
             }
-            predBackwards = pred;
+            predBackwards = tree->pred[predBackwards];
         } else {
-            int pred = tree->pred[predForwards];
-            if (!tree->has_arc(predForwards, pred)) {
+            if (tree->basic_arc_dirs[predForwards] == ARC_DOWN) {
                 // backward arc from W to pred(W)
-                Arc *arc = tree->get_arc(pred, predForwards);
+                Arc *arc = tree->basic_arcs[predForwards];
                 cycle.B.push_back(arc);
                 if (arc->flow < cycle.theta
                         || (arc->flow == cycle.theta && !blockingIsFromBackward)) {
@@ -179,7 +177,7 @@ void NWSimplex::compute_cycle(Arc* entering) {
                 }
             } else {
                 // forward arc from V to pred(V)
-                Arc *arc = tree->get_arc(predForwards, pred);
+                Arc *arc = tree->basic_arcs[predForwards];
                 cycle.F.push_back(arc);
                 if (arc->capacity != LONG_MAX) {
                     long resCapacity = arc->capacity - arc->flow;
@@ -191,7 +189,7 @@ void NWSimplex::compute_cycle(Arc* entering) {
                     }
                 }
             }
-            predForwards = pred;
+            predForwards = tree->pred[predForwards];
         }
     }
 

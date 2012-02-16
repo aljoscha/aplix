@@ -21,15 +21,19 @@ void TreeSolution::determine_initial_tree() {
             // INTO this node
             arc = network->add_artificial_arc(ROOT_NODE, node->id);
             arc->flow = -node->demand;
+            basic_arcs[i] = arc;
+            basic_arc_dirs[i] = ARC_DOWN;
         } else {
             // network.getDemand(node) >= 0
             // eg node has supply or flow conservation! want to make an arc
             // FROM this node
             arc = network->add_artificial_arc(node->id, ROOT_NODE);
             arc->flow = node->demand;
+            basic_arcs[i] = arc;
+            basic_arc_dirs[i] = ARC_UP;
         }
         arc->state = ARC_STATE_T;
-        treearcs[arc->v][arc->w] = arc;
+        basic_arcs[0] = NULL;
     }
 }
 
@@ -45,7 +49,7 @@ void TreeSolution::calc_initial_tree_structure() {
     pred[num_treearcs - 1] = 0;
     thread[num_treearcs - 1] = 0;
     depth[num_treearcs - 1] = 1;
-    if (treearcs[0][num_treearcs - 1] != NULL) {
+    if (basic_arc_dirs[num_treearcs - 1] == ARC_DOWN) {
         potential[num_treearcs - 1] = network->max_cost;
     } else {
         potential[num_treearcs - 1] = -network->max_cost;
@@ -55,7 +59,7 @@ void TreeSolution::calc_initial_tree_structure() {
         depth[i] = 1;
         pred[i] = 0;
         thread[i] = i + 1;
-        if (treearcs[0][i] != NULL) {
+        if (basic_arc_dirs[i] == ARC_DOWN) {
             potential[i] = network->max_cost;
         } else {
             potential[i] = -network->max_cost;
@@ -82,10 +86,6 @@ void TreeSolution::update(const std::vector<Arc*> &F,
         }
     }
 
-    if (entering != leaving) {
-        treearcs[leaving->v][leaving->w] = NULL;
-    }
-
     if (leaving->flow == 0) {
         // must now be in L
         if (!leaving->artificial) {
@@ -101,10 +101,6 @@ void TreeSolution::update(const std::vector<Arc*> &F,
     // entering arc must not be removed from L/U because getEnteringArcFrom*
     // already do that
     entering->state = ARC_STATE_T;
-
-    if (entering != leaving) {
-        treearcs[entering->v][entering->w] = entering;
-    }
 
     this->update_tree(entering, leaving, common_predecessor);
 }
@@ -156,6 +152,7 @@ void TreeSolution::update_tree(Arc* entering, Arc* leaving, int join)
     }
 
     update_thread_parent(jOut, iOut, jNew, iNew, join);
+    update_arc_dir(jOut, iOut, jNew, iNew, entering);
     update_depth_pot(jOut, iOut, jNew, iNew);
 }
 
@@ -270,6 +267,30 @@ void TreeSolution::update_thread_parent(int jOut, int iOut, int jNew, int iNew,
     pred[iOut] = predStem;
 }
 
+void TreeSolution::update_arc_dir(int jOut, int iOut, int jNew, int iNew,
+                                  Arc *entering) {
+    int i = iOut;
+
+    while (i != iNew) {
+        int j = pred[i];
+        basic_arcs[i] = basic_arcs[j];
+        if (basic_arc_dirs[j] == ARC_UP) {
+            basic_arc_dirs[i] = ARC_DOWN;
+        } else {
+            basic_arc_dirs[i] = ARC_UP;
+        }
+        i = j;
+    }
+
+    basic_arcs[iNew] = entering;
+
+    if (entering->v == iNew) {
+        basic_arc_dirs[iNew] = ARC_UP;
+    } else {
+        basic_arc_dirs[iNew] = ARC_DOWN;
+    }
+}
+
 /**
  * Updates the depth of the dynamic spanning tree structure as well as the
  * potential.
@@ -292,16 +313,14 @@ void TreeSolution::update_depth_pot(int jOut, int iOut, int jNew, int iNew)
         depth[i] = depth[j] + 1;
 
         // determine if there is a backward or a forward arc.
-        if (treearcs[i][pred[i]] != NULL) {
+        if (basic_arc_dirs[i] == ARC_UP) {
             // forward arc in the tree exists
             potential[i] = potential[pred[i]]
-                    - treearcs[i][pred[i]]->cost;
-        } else if (treearcs[pred[i]][i] != NULL) {
+                    - basic_arcs[i]->cost;
+        } else {
             // backward arc in the tree exists
             potential[i] = potential[pred[i]]
-                    + treearcs[pred[i]][i]->cost;
-        } else {
-            throw "Update potential cumputation failed from {} to {}";
+                    + basic_arcs[i]->cost;
         }
 
         if (depth[i] <= depth[jNew]) {
@@ -310,14 +329,6 @@ void TreeSolution::update_depth_pot(int jOut, int iOut, int jNew, int iNew)
             i = thread[i];
         }
     }
-}
-
-bool TreeSolution::has_arc(int from, int to) {
-    return treearcs[from][to] != NULL;
-}
-
-Arc* TreeSolution::get_arc(int from, int to) {
-    return treearcs[from][to];
 }
 
 long long TreeSolution::solution_value() {
