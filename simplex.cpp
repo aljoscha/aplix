@@ -41,9 +41,9 @@ bool NWSimplex::perform_major_iteration() {
 
     while (best != NULL && removed_arcs < max_min_its) {
         // arc is from L
-        Cycle *cycle = compute_cycle(best);
+        compute_cycle(best);
 
-        if (cycle->blocking == NULL) {
+        if (cycle.blocking == NULL) {
             std::cout << "Instance is unbounded." << std::endl;
             solution_state = SOLUTION_UNBOUNDED;
             return true;
@@ -52,11 +52,9 @@ bool NWSimplex::perform_major_iteration() {
         // tree.getL().remove(best);
         best->state = ARC_STATE_T;
 
-        tree->update(cycle->F, cycle->B, cycle->theta, best,
-                cycle->blocking, cycle->common_predecessor);
+        tree->update(cycle.F, cycle.B, cycle.theta, best,
+                cycle.blocking, cycle.common_predecessor);
         num_iterations++;
-
-        delete cycle;
 
         removed_arcs++;
         best = get_best_arc();
@@ -110,32 +108,32 @@ void NWSimplex::fill_candidate_list() {
     }
 }
 
-Cycle* NWSimplex::compute_cycle(Arc* entering) {
+void NWSimplex::compute_cycle(Arc* entering) {
     int predBackwards = -1;
     int predForwards = -1;
-    Arc *blocking = NULL;
     bool blockingIsFromBackward = false;
-    long long theta = LONG_MAX;
+    cycle.theta = LONG_MAX;
+    cycle.blocking = NULL;
+    cycle.F.clear();
+    cycle.B.clear();
 
-    std::list<Arc*> F;
-    std::list<Arc*> B;
 
     if (entering->state == ARC_STATE_L) {
         blockingIsFromBackward = true;
         predBackwards = entering->v;
         predForwards = entering->w;
         if (entering->capacity != LONG_MAX) {
-            blocking = entering;
-            theta = entering->capacity - entering->flow;
+            cycle.blocking = entering;
+            cycle.theta = entering->capacity - entering->flow;
         }
-        F.push_back(entering);
+        cycle.F.push_back(entering);
     } else {
         blockingIsFromBackward = true;
         predBackwards = entering->w;
         predForwards = entering->v;
-        blocking = entering;
-        theta = entering->flow;
-        B.push_back(entering);
+        cycle.blocking = entering;
+        cycle.theta = entering->flow;
+        cycle.B.push_back(entering);
     }
 
     while (predBackwards != predForwards) {
@@ -145,23 +143,23 @@ Cycle* NWSimplex::compute_cycle(Arc* entering) {
             if (tree->has_arc(predBackwards, pred)) {
                 // forward arc from V to pred(V)
                 Arc *arc = tree->get_arc(predBackwards, pred);
-                B.push_back(arc);
-                if (arc->flow < theta
-                        || (arc->flow == theta && !blockingIsFromBackward)) {
-                    theta = arc->flow;
-                    blocking = arc;
+                cycle.B.push_back(arc);
+                if (arc->flow < cycle.theta
+                        || (arc->flow == cycle.theta && !blockingIsFromBackward)) {
+                    cycle.theta = arc->flow;
+                    cycle.blocking = arc;
                     blockingIsFromBackward = true;
                 }
             } else {
                 // backward arc from V to pred(V)
                 Arc *arc = tree->get_arc(pred, predBackwards);
-                F.push_back(arc);
+                cycle.F.push_back(arc);
                 if (arc->capacity != LONG_MAX) {
                     long long resCapacity = arc->capacity - arc->flow;
-                    if (resCapacity < theta
-                            || (resCapacity == theta && !blockingIsFromBackward)) {
-                        theta = resCapacity;
-                        blocking = arc;
+                    if (resCapacity < cycle.theta
+                            || (resCapacity == cycle.theta && !blockingIsFromBackward)) {
+                        cycle.theta = resCapacity;
+                        cycle.blocking = arc;
                         blockingIsFromBackward = true;
                     }
                 }
@@ -172,23 +170,23 @@ Cycle* NWSimplex::compute_cycle(Arc* entering) {
             if (!tree->has_arc(predForwards, pred)) {
                 // backward arc from W to pred(W)
                 Arc *arc = tree->get_arc(pred, predForwards);
-                B.push_back(arc);
-                if (arc->flow < theta
-                        || (arc->flow == theta && !blockingIsFromBackward)) {
-                    theta = arc->flow;
-                    blocking = arc;
+                cycle.B.push_back(arc);
+                if (arc->flow < cycle.theta
+                        || (arc->flow == cycle.theta && !blockingIsFromBackward)) {
+                    cycle.theta = arc->flow;
+                    cycle.blocking = arc;
                     blockingIsFromBackward = false;
                 }
             } else {
                 // forward arc from V to pred(V)
                 Arc *arc = tree->get_arc(predForwards, pred);
-                F.push_back(arc);
+                cycle.F.push_back(arc);
                 if (arc->capacity != LONG_MAX) {
                     long resCapacity = arc->capacity - arc->flow;
-                    if (resCapacity < theta
-                            || (resCapacity == theta && !blockingIsFromBackward)) {
-                        theta = resCapacity;
-                        blocking = arc;
+                    if (resCapacity < cycle.theta
+                            || (resCapacity == cycle.theta && !blockingIsFromBackward)) {
+                        cycle.theta = resCapacity;
+                        cycle.blocking = arc;
                         blockingIsFromBackward = false;
                     }
                 }
@@ -197,16 +195,16 @@ Cycle* NWSimplex::compute_cycle(Arc* entering) {
         }
     }
 
-    if (blocking == NULL) {
+    if (cycle.blocking == NULL) {
         // performBestIteration relies on this ...
         solution_state = SOLUTION_UNBOUNDED;
     }
 
-    if (theta < 0) {
+    if (cycle.theta < 0) {
         throw "Something is seriously wrong, theta=";
     }
 
-    return new Cycle(theta, blocking, predForwards, F, B);
+    cycle.common_predecessor = predForwards;
 }
 
 void NWSimplex::recalc_redcosts() {

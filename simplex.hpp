@@ -18,11 +18,6 @@ class Cycle {
 	int common_predecessor;
     std::list<Arc*> F;
     std::list<Arc*> B;
-
-    inline Cycle(long long theta, Arc* blocking, int common_predecessor,
-            std::list<Arc*> F,
-            std::list<Arc*> B) : theta(theta), blocking(blocking),
-        common_predecessor(common_predecessor), F(F), B(B) {}
 };
 
 class NWSimplex {
@@ -37,10 +32,11 @@ class NWSimplex {
     unsigned int max_min_its;
 
     std::vector<Arc*> candidate_list;
+    Cycle cycle;
 
     bool perform_major_iteration();
     void fill_candidate_list();
-    Cycle* compute_cycle(Arc* entering);
+    void compute_cycle(Arc* entering);
     void recalc_redcosts();
     Arc* get_best_arc();
 
