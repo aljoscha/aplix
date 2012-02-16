@@ -44,7 +44,6 @@ bool NWSimplex::perform_major_iteration() {
         compute_cycle(best);
 
         if (cycle.blocking == NULL) {
-            std::cout << "Instance is unbounded." << std::endl;
             solution_state = SOLUTION_UNBOUNDED;
             return true;
         }
