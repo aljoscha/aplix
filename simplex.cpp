@@ -84,7 +84,7 @@ void NWSimplex::fill_candidate_list() {
                 continue;
             }
 
-            long long reduced_cost = tree->potential[arc->v]
+            long reduced_cost = tree->potential[arc->v]
                     - tree->potential[arc->w] + arc->cost;
 
             if (reduced_cost < 0 && arc->flow == 0) {
@@ -154,7 +154,7 @@ void NWSimplex::compute_cycle(Arc* entering) {
                 Arc *arc = tree->basic_arcs[predBackwards];
                 cycle.F.push_back(arc);
                 if (arc->capacity != LONG_MAX) {
-                    long long resCapacity = arc->capacity - arc->flow;
+                    long resCapacity = arc->capacity - arc->flow;
                     if (resCapacity < cycle.theta
                             || (resCapacity == cycle.theta && !blockingIsFromBackward)) {
                         cycle.theta = resCapacity;
@@ -209,7 +209,7 @@ void NWSimplex::recalc_redcosts() {
     std::vector<Arc*>::iterator it = candidate_list.begin();
     while (it != candidate_list.end()) {
         Arc *arc = (*it);
-        long long reducedCost = tree->potential[arc->v]
+        long reducedCost = tree->potential[arc->v]
                 - tree->potential[arc->w] + arc->cost;
         if (arc->flow == 0) {
             // this arc comes from L
@@ -232,13 +232,13 @@ void NWSimplex::recalc_redcosts() {
 Arc* NWSimplex::get_best_arc()
 {
     Arc *best = NULL;
-    long long bestRedCost = 0;
+    long bestRedCost = 0;
 
     std::vector<Arc*>::iterator it = candidate_list.begin();
     while (it != candidate_list.end()) {
         Arc *arc = (*it);
 
-        long long reducedCost = tree->potential[arc->v]
+        long reducedCost = tree->potential[arc->v]
                 - tree->potential[arc->w] + arc->cost;
 
         if (arc->flow == 0) {
@@ -265,7 +265,7 @@ Arc* NWSimplex::get_best_arc()
     return best;
 }
 
-long long NWSimplex::solution_value()
+long NWSimplex::solution_value()
 {
     return tree->solution_value();
 }

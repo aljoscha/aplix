@@ -13,7 +13,7 @@
 
 class Cycle {
   public:
-    long long theta;
+    long theta;
 	Arc* blocking;
 	int common_predecessor;
     std::vector<Arc*> F;
@@ -56,7 +56,7 @@ class NWSimplex {
     }
 
     int compute_solution();
-    long long solution_value();
+    long solution_value();
     std::list<Arc*>* sorted_solution_arcs();
 };
 

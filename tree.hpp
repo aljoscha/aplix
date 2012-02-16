@@ -29,7 +29,7 @@ class TreeSolution {
     int *pred;
     int *depth;
     int *thread;
-    long long *potential;
+    long *potential;
     Arc **basic_arcs;
     char *basic_arc_dirs;
 
@@ -37,7 +37,7 @@ class TreeSolution {
         pred = new int[network->num_nodes];
         depth = new int[network->num_nodes];
         thread = new int[network->num_nodes];
-        potential = new long long[network->num_nodes];
+        potential = new long[network->num_nodes];
         basic_arcs = new Arc*[network->num_nodes];
         basic_arc_dirs = new char[network->num_nodes];
 
@@ -46,13 +46,13 @@ class TreeSolution {
     }
 
     void update(const std::vector<Arc*> &F, const std::vector<Arc*> &B,
-                long long theta,
+                long theta,
                 Arc *entering,
                 Arc* leaving,
                 int common_predecessor);
 
 
-    long long solution_value();
+    long solution_value();
 };
 
 #endif

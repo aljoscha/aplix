@@ -3,7 +3,7 @@
 #include <stack>
 
 void TreeSolution::determine_initial_tree() {
-    long long demand_sum = 0;
+    long demand_sum = 0;
     for (int i = 0; i < network->num_nodes; ++i) {
         demand_sum += network->nodes[i]->demand;
     }
@@ -62,7 +62,7 @@ void TreeSolution::calc_initial_tree_structure() {
 
 void TreeSolution::update(const std::vector<Arc*> &F,
                 const std::vector<Arc*> &B,
-                long long theta,
+                long theta,
                 Arc *entering,
                 Arc* leaving,
                 int common_predecessor) {
@@ -324,8 +324,8 @@ void TreeSolution::update_depth_pot(int jOut, int iOut, int jNew, int iNew)
     }
 }
 
-long long TreeSolution::solution_value() {
-    long long sum = 0;
+long TreeSolution::solution_value() {
+    long sum = 0;
 
     for (int i = 0; i < network->num_nodes; i++) {
         for (std::list<Arc*>::iterator it = network->nodes[i]->outgoing.begin();

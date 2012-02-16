@@ -93,7 +93,7 @@ NetworkType* parse_nwk(std::string filename) {
                 line.get();
                 line.get();
 
-                int cost;
+                long cost;
                 line >> cost;
 
                 long capacity = LONG_MAX;

@@ -13,7 +13,7 @@
 class Arc {
   public:
     int v,w;
-    long long flow, capacity, cost;
+    long flow, capacity, cost;
     long compare_value;
     bool artificial;
     char state;
@@ -51,10 +51,10 @@ bool operator==(const Arc &lhs, const Arc &rhs);
 class Node {
   public:
 	int id;
-	long long demand;
+	long demand;
     std::list<Arc*> outgoing;
 
-    inline Node(int id, long long demand) : id(id), demand(demand) {}
+    inline Node(int id, long demand) : id(id), demand(demand) {}
 
     inline void add_outgoing(Arc *arc) {
         outgoing.push_back(arc);
@@ -73,7 +73,7 @@ class Network {
         this->max_cost = 0;
     }
 
-    inline void add_node(int node, long long demand) {
+    inline void add_node(int node, long demand) {
         nodes[node] = new Node(node, demand);
     }
 
